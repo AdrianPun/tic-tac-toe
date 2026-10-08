@@ -1,0 +1,108 @@
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+html {
+    box-sizing: border-box;
+}
+
+*, ::before, ::after {
+    box-sizing: inherit;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: #0f172a;
+  color: #f8fafc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.container {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+}
+
+.subtitle {
+  color: #94a3b8;
+  margin-top: 5px;
+}
+
+/* ==========================================================================
+   Status Panel & Buttons
+   ========================================================================== */
+.status-panel {
+  background-color: #1e293b;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.status-message {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.btn {
+  background-color: #38bdf8;
+  color: #000;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #7dd3fc;
+}
+
+/* ==========================================================================
+   Game Board (3x3 Grid)
+   ========================================================================== */
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 8px;
+  background-color: #1e293b;
+  padding: 8px;
+  border-radius: 8px;
+  aspect-ratio: 1 / 1;
+}
+
+.cell {
+  background-color: #0f172a;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 4rem;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cell:hover:not(.taken) {
+  background-color: #334155;
+}
+
+.cell.taken {
+  cursor: not-allowed;
+}
+
+/* Colors for players */
+.cell.x { color: #f43f5e; }
+.cell.o { color: #3b82f6; }
