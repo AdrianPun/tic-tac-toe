@@ -4,6 +4,9 @@
 let board = ['', '', '', '', '', '', '', '', '']; // 9 empty spaces
 let currentPlayer = 'X';
 let isGameActive = true;
+//0-2 = rows, 3-5 = columns, 6-7 = diagonals
+let winningCount = [0, 0, 0, 0, 0, 0, 0, 0];
+let size = 3
 
 // ==========================================================================
 // DOM Elements
@@ -29,7 +32,7 @@ function initGame() {
   boardElement.innerHTML = '';
 
   // Loop 9 times to create the 3x3 grid
-  for (let i = 0; i < 9; i++) {
+  for (let i = 0; i < size**2; i++) {
     // 1. Create a new div element
     const cell = document.createElement('div');
     
@@ -59,31 +62,59 @@ function initGame() {
  * @param {Event} event - The click event object
  */
 function handleCellClick(event) {
-  // 'event.target' refers to the exact HTML element that was clicked
-  const clickedCell = event.target;
-  
-  // Retrieve the index we stored earlier and convert it to a number
-  const cellIndex = parseInt(clickedCell.dataset.index);
+  if (!checkWin()){
+    // 'event.target' refers to the exact HTML element that was clicked
+    const clickedCell = event.target;
+    
+    // Retrieve the index we stored earlier and convert it to a number
+    const cellIndex = parseInt(clickedCell.dataset.index);
 
-  // Check if the cell is already filled OR if the game is over.
-  // If either is true, exit the function early (do nothing).
-  if (board[cellIndex] !== '' || isGameActive === false) {
-    return;
+    // Check if the cell is already filled OR if the game is over.
+    // If either is true, exit the function early (do nothing).
+    if (board[cellIndex] !== '' || isGameActive === false) {
+      return;
+    }
+
+    // TODO 1: Update the internal state (the 'board' array) with the current player
+    board[cellIndex] = currentPlayer
+    // TODO 2: Update the DOM to reflect the internal state! 
+    // you may need to update both inner html and css classes of DOM elements
+    clickedCell.classList.add(currentPlayer.toLowerCase())
+    clickedCell.innerHTML = currentPlayer
+    // TODO 3: Check for (and possibly handle) a winner (Call the checkWin() function)
+    assignPoint(cellIndex);
+    if (checkWin()){
+      statusElement.innerHTML = `Player ${currentPlayer} Wins!`
+      return
+    }
+    // TODO 4: Check for (and possibly handle) a tie (Call the checkTie() function)
+    if (checkTie()){
+      statusElement.innerHTML = `It is a Tie!`
+      return
+    }
+    // TODO 5: Swap the currentPlayer from 'X' to 'O' or 'O' to 'X'
+    currentPlayer = currentPlayer === "X" ? "O" : "X"
+    // TODO 6: Update the statusElement to show whose turn it is now
+    statusElement.innerHTML = `Player ${currentPlayer}'s Turn`
   }
-
-  // TODO 1: Update the internal state (the 'board' array) with the current player
-  
-  // TODO 2: Update the DOM to reflect the internal state! 
-  // you may need to update both inner html and css classes of DOM elements
-
-  // TODO 3: Check for (and possibly handle) a winner (Call the checkWin() function)
-  
-  // TODO 4: Check for (and possibly handle) a tie (Call the checkTie() function)
-  
-  // TODO 5: Swap the currentPlayer from 'X' to 'O' or 'O' to 'X'
-  
-  // TODO 6: Update the statusElement to show whose turn it is now
 }
+
+//Helps checkWin function
+function assignPoint(cellIndex){
+  let row = Math.floor(cellIndex / size);
+  let col = cellIndex % size;
+  let point = currentPlayer === "X" ? 1 : -1;
+  winningCount[row] += point;
+  winningCount[size + col] += point;
+  if (col === row){
+    winningCount[size * 2] += point;
+  }
+  if (row + col === size - 1) {
+    winningCount[size * 2 + 1] += point;
+  }
+  return;
+}
+
 
 /**
  * Checks for a winner.
@@ -91,7 +122,11 @@ function handleCellClick(event) {
  */
 function checkWin() {
   // TODO
-  return false;
+  for (let i = 0; i < 8; i++){
+    if (Math.abs(winningCount[i]) == size){
+      return true;
+    }
+  }
 }
 
 /**
@@ -99,8 +134,7 @@ function checkWin() {
  * @returns {boolean} true if it's a tie, false otherwise
  */
 function checkTie() {
-  // TODO
-  return false; 
+  return !board.includes('')
 }
 
 /**
@@ -108,6 +142,10 @@ function checkTie() {
  */
 function resetGame() {
   // TODO: reset internal state
+  board = ['', '', '', '', '', '', '', '', ''];
+  currentPlayer = "X";
+  statusElement.innerHTML = `Player ${currentPlayer}'s Turn`;
+  winningCount = [0, 0, 0, 0, 0, 0, 0, 0];
   // To clear the DOM easily, just call initGame() again to rebuild the empty cells!
   initGame();
 }
