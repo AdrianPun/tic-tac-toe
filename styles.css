@@ -2,11 +2,11 @@
    Base Styles
    ========================================================================== */
 html {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 *, ::before, ::after {
-    box-sizing: inherit;
+  box-sizing: inherit;
 }
 
 body {
@@ -18,11 +18,12 @@ body {
   align-items: center;
   min-height: 100vh;
   margin: 0;
+  padding: 16px; /* keeps the board off the screen edges on phones */
 }
 
 .container {
   width: 100%;
-  max-width: 400px;
+  max-width: 480px; /* a bit wider than before: 81 cells need the room */
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -32,11 +33,6 @@ body {
 header h1 {
   margin: 0;
   font-size: 2.5rem;
-}
-
-.subtitle {
-  color: #94a3b8;
-  margin-top: 5px;
 }
 
 /* ==========================================================================
@@ -52,6 +48,15 @@ header h1 {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 10px;
+}
+
+/* Second line under the status: tells the player where they can move */
+.status-message .hint {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: normal;
+  color: #94a3b8;
+  margin-top: 4px;
 }
 
 .btn {
@@ -70,37 +75,85 @@ header h1 {
 }
 
 /* ==========================================================================
-   Game Board (3x3 Grid)
+   Big Board (3x3 grid of small boards)
    ========================================================================== */
 .board {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 8px;
-  background-color: #1e293b;
-  padding: 8px;
-  border-radius: 8px;
+  /* minmax(0, 1fr) stops the letters inside from stretching the rows */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  background-color: #334155;
+  padding: 10px;
+  border-radius: 10px;
   aspect-ratio: 1 / 1;
 }
 
-.cell {
-  background-color: #0f172a;
-  border-radius: 4px;
+/* ==========================================================================
+   Small Boards (3x3 grid of cells)
+   ========================================================================== */
+.small-board {
+  position: relative; /* lets the big "won" letter sit on top of the cells */
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 3px;
+  background-color: #1e293b;
+  padding: 4px;
+  border-radius: 6px;
+  outline: 3px solid transparent;
+  transition: outline-color 0.15s;
+}
+
+/* The board(s) the current player is allowed to play in */
+.small-board.active {
+  outline-color: #facc15;
+}
+
+.small-board:not(.active) .cell {
+  cursor: not-allowed;
+}
+
+/* Full board with no winner: fade it out */
+.small-board.tied {
+  opacity: 0.35;
+}
+
+/* Big letter covering a won small board */
+.small-board[data-winner]::after {
+  content: attr(data-winner);
+  position: absolute;
+  inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 4rem;
+  font-size: clamp(3rem, 18vw, 6rem);
+  font-weight: bold;
+  background-color: rgba(15, 23, 42, 0.8);
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+.small-board.won-x::after { color: #f43f5e; }
+.small-board.won-o::after { color: #3b82f6; }
+
+/* ==========================================================================
+   Cells
+   ========================================================================== */
+.cell {
+  background-color: #0f172a;
+  border-radius: 3px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: clamp(1rem, 5vw, 1.75rem);
   font-weight: bold;
   cursor: pointer;
   user-select: none;
 }
 
-.cell:hover:not(.taken) {
+.small-board.active .cell:hover:not(.taken) {
   background-color: #334155;
-}
-
-.cell.taken {
-  cursor: not-allowed;
 }
 
 /* Colors for players */
