@@ -1,122 +1,213 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
 import './App.css'
+import { useState } from 'react';
 
-function App() {
-  const [count, setCount] = useState(0)
+document.getElementById('root').style.display = 'contents';
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+/**
+ * @returns {boolean} true if there is a winner, false otherwise
+ */
+function checkWin(winningCount, size) {
+  for (let i = 0; i < winningCount.length; i++){
+    if (Math.abs(winningCount[i]) == size){
+      return true;
+    }
+  }
+  return false;
+}
 
-      <div className="ticks"></div>
+/**
+ * @returns {boolean} true if it's a tie, false otherwise
+ */
+function checkTie(board) {
+  return !board.includes('')
+}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+function copyList(list) {
+  const copy = [];
+  for (let i = 0; i < list.length; i++) {
+    copy.push(list[i]);
+  }
+  return copy;
+}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+function makeList(length, value) {
+  const list = [];
+  for (let i = 0; i < length; i++) {
+    list.push(value);
+  }
+  return list;
+}
+
+function App(){
+  return(<>
+    <TicTacToe></TicTacToe>
+  </>)
+}
+
+function TicTacToe(){
+  const [size, setSize] = useState(3);
+  const [board, setBoard] = useState(['', '', '', '', '', '', '', '', '']);
+  const [currentPlayer, setCurrentPlayer] = useState('X');
+  const [isGameActive, setIsGameActive] = useState(true);
+  const [winningCount, setWinningCount] = useState([0, 0, 0, 0, 0, 0, 0, 0]);
+
+  function handleCellClick(event) {
+    const clickedCell = event.target;
+    const cellIndex = parseInt(clickedCell.dataset.index);
+
+    if (board[cellIndex] !== '' || isGameActive === false) {
+      return;
+    }
+    makeMove(copyList(board), copyList(winningCount), cellIndex);
+  }
+
+  function makeMove(board, winningCount, cellIndex) {
+    board[cellIndex] = currentPlayer
+
+    assignPoint(winningCount, cellIndex);
+
+    setBoard(board);
+    setWinningCount(winningCount);
+
+    if (checkWin(winningCount, size)){
+      setIsGameActive(false);
+      return
+    }
+
+    if (checkTie(board)){
+      setIsGameActive(false);
+      return
+    }
+
+    if (currentPlayer === "X") {
+      setCurrentPlayer("O");
+    } else {
+      setCurrentPlayer("X");
+    }
+  }
+
+  function assignPoint(winningCount, cellIndex){
+    let row = Math.floor(cellIndex / size);
+    let col = cellIndex % size;
+    let point = -1;
+    if (currentPlayer === "X") {
+      point = 1;
+    }
+    winningCount[row] += point;
+    winningCount[size + col] += point;
+    if (col === row){
+      winningCount[size * 2] += point;
+    }
+    if (row + col === size - 1) {
+      winningCount[size * 2 + 1] += point;
+    }
+    return;
+  }
+
+  function startGame(size) {
+    setSize(size);
+    setBoard(makeList(size * size, ''));
+    setCurrentPlayer("X");
+    setWinningCount(makeList(size * 2 + 2, 0));
+    setIsGameActive(true);
+  }
+
+  function resetGame() {
+    startGame(size);
+  }
+
+  function handleSizeChange(event) {
+    startGame(parseInt(event.target.value));
+  }
+
+  return(
+    <div className="container">
+      <InfoBar
+        currentPlayer={currentPlayer}
+        isGameActive={isGameActive}
+        winningCount={winningCount}
+        size={size}
+        resetGame={resetGame}
+        handleSizeChange={handleSizeChange}
+      ></InfoBar>
+      <Board
+        board={board}
+        size={size}
+        handleCellClick={handleCellClick}
+      ></Board>
+    </div>
   )
+}
+
+function InfoBar(props){
+  return(<div className="status-panel">
+    <TurnText
+      currentPlayer={props.currentPlayer}
+      isGameActive={props.isGameActive}
+      winningCount={props.winningCount}
+      size={props.size}
+    ></TurnText>
+    <Reset resetGame={props.resetGame}></Reset>
+    <SizeSlider
+      size={props.size}
+      handleSizeChange={props.handleSizeChange}
+    ></SizeSlider>
+  </div>)
+}
+
+function TurnText(props){
+  if (!props.isGameActive && checkWin(props.winningCount, props.size)) {
+    return(<div className="status-message">Player {props.currentPlayer} Wins!</div>)
+  }
+  if (!props.isGameActive) {
+    return(<div className="status-message">It is a Tie!</div>)
+  }
+  return(<div className="status-message">Player {props.currentPlayer}'s Turn</div>)
+}
+
+function Reset(props){
+  return(<button className="btn" onClick={props.resetGame}>Restart Game</button>)
+}
+
+function SizeSlider(props){
+  return(<label className="size-slider">
+    Grid size: {props.size} × {props.size}
+    <input
+      type="range"
+      min="3"
+      max="8"
+      value={props.size}
+      onChange={props.handleSizeChange}
+    ></input>
+  </label>)
+}
+
+function Board(props){
+  const cells = [];
+
+  for (let i = 0; i < props.size**2; i++) {
+    let className = 'cell';
+    if (props.board[i] !== '') {
+      className = 'cell taken ' + props.board[i].toLowerCase();
+    }
+    const cell = (
+      <div
+        key={i}
+        className={className}
+        data-index={i}
+        onClick={props.handleCellClick}
+      >
+        {props.board[i]}
+      </div>
+    );
+    cells.push(cell);
+  }
+
+  const boardStyle = { '--size': props.size };
+
+  return(<div className="board" style={boardStyle}>
+    {cells}
+  </div>)
 }
 
 export default App
